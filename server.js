@@ -21,7 +21,7 @@ mongoose
     console.log(err);
   });
 
-server.use(express.json());
+server.use(express.json({ extended: false }));
 
 server.get("/", (req, res) => {
   res.send(`
