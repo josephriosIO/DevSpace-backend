@@ -1,5 +1,7 @@
 {
   "mongoURI": "mongodb+srv://joseph:password12345@cluster0-8kvvs.mongodb.net/test?retryWrites=true",
 
-  "secretKey": "secret"
+  "secretKey": "secret",
+  "githubClientId": "460bb236a4c7b54e114a",
+  "githubSecret": "db0ba098d9ab08d482510308c12070f0d1a4ede1"
 }
