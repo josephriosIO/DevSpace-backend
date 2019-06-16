@@ -151,4 +151,78 @@ router.put("/unlike/:id", auth, async (req, res) => {
   }
 });
 
+//Route POST api/posts/comment/:id
+//@desc create a comment on a post
+//@access private
+router.post(
+  "/comment/:id",
+  [auth],
+  [
+    check("text", "Text is required")
+      .not()
+      .isEmpty()
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: errors.array() });
+    }
+
+    try {
+      const user = await User.findById(req.user.id).select("-password");
+
+      const post = await Post.findById(req.params.id);
+
+      const newComment = {
+        text: req.body.text,
+        name: user.name,
+        avatar: user.avatar,
+        user: req.user.id
+      };
+
+      post.comments.unshift(newComment);
+
+      await post.save();
+
+      res.json(post.comments);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+);
+
+//Route delete api/posts/comment/:id/:comment_id
+//@desc delete comment on a post
+//@access private
+router.delete("/comment/:id/:comment_id", auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    //pull out comments
+    const comment = post.comments.find(
+      comment => comment.id === req.params.comment_id
+    );
+
+    //make sure comment exist
+    if (!comment) {
+      return res.status(404).json({ msg: "comment not found" });
+    }
+    // make sure user is authizored to delete comment
+    if (comment.user.toString() !== req.user.id) {
+      return res.status(401).json({ msg: "user not authoizad" });
+    }
+    //get remove index
+    const removeIdx = post.comments
+      .map(comment => comment.user.toString())
+      .indexOf(req.user.id);
+    post.comments.splice(removeIdx, 1);
+
+    await post.save();
+
+    res.json(post.comments);
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+});
+
 module.exports = router;
