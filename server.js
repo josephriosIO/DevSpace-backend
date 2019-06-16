@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const connectDB = require("./config/db");
 
 //import routes
@@ -13,6 +14,7 @@ const server = express();
 connectDB();
 
 server.use(express.json({ extended: false }));
+server.use(cors());
 
 server.get("/", (req, res) => {
   res.send(`
